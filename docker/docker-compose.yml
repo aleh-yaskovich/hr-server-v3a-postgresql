@@ -1,0 +1,15 @@
+version: '3.7'
+services:
+
+  postgres:
+    image: postgres:latest
+    container_name: hr-postgres-local
+    hostname: postgres
+    restart: on-failure
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=P@55w0rd
+      - POSTGRES_DB=human-resources
+      - POSTGRES_DB_SCHEMA=hr-schema
