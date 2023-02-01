@@ -1,4 +1,4 @@
-package com.yaskovich.hr.models;
+package com.yaskovich.hr.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DepartmentFullModel extends DepartmentBaseModel {
+public class DepartmentFull extends DepartmentBase {
     private Integer numberOfEmployees;
-    private Double avgSalary;
+    private String avgSalary;
 }

@@ -1,4 +1,4 @@
-package com.yaskovich.hr.models;
+package com.yaskovich.hr.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,10 +11,10 @@ import java.sql.Date;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmployeeBaseModel {
+public class EmployeeBase {
     private Long id;
     private String firstName;
     private String lastName;
-    private Double salary;
+    private String salary;
     private Date hiring;
 }

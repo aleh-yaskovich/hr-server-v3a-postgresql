@@ -1,7 +1,7 @@
 package com.yaskovich.hr.dto;
 
-import com.yaskovich.hr.models.EmployeeBaseModel;
-import com.yaskovich.hr.models.EmployeeFullModel;
+import com.yaskovich.hr.entity.EmployeeBase;
+import com.yaskovich.hr.entity.EmployeeFull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,30 +48,32 @@ public class EmployeeDto {
     private String employeeUpdate;
     @Value("${employee.delete}")
     private String employeeDelete;
+    @Value("${employee.checkEmail}")
+    private String employeeCheckEmail;
 
-    public List<EmployeeBaseModel> getAllEmployees() {
+    public List<EmployeeBase> getAllEmployees() {
         return template.query(findAllEmployees, new EmployeeBaseModelRowMapper());
     }
 
-    public List<EmployeeBaseModel> getEmployeesByDepartment(Long department) {
+    public List<EmployeeBase> getEmployeesByDepartment(Long department) {
         SqlParameterSource sqlParameterSource = new MapSqlParameterSource("department", department);
         return template.query(findEmployeesByDepartment, sqlParameterSource, new EmployeeBaseModelRowMapper());
     }
 
-    public Optional<EmployeeFullModel> getEmployeeById(Long id) {
+    public Optional<EmployeeFull> getEmployeeById(Long id) {
         SqlParameterSource sqlParameterSource = new MapSqlParameterSource("id", id);
-        List<EmployeeFullModel> results =
+        List<EmployeeFull> results =
                 template.query(findEmployeeById, sqlParameterSource, new EmployeeFullModelRowMapper());
         return Optional.ofNullable(DataAccessUtils.uniqueResult(results));
     }
 
-    public boolean createEmployee(EmployeeFullModel model) {
+    public boolean createEmployee(EmployeeFull model) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         template.update(employeeCreate, createSqlParameterSource(model), keyHolder);
         return true;
     }
 
-    public boolean updateEmployee(EmployeeFullModel model) {
+    public boolean updateEmployee(EmployeeFull model) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         template.update(employeeUpdate, createSqlParameterSource(model), keyHolder);
         return true;
@@ -81,7 +84,15 @@ public class EmployeeDto {
         return template.update(employeeDelete, sqlParameterSource);
     }
 
-    private SqlParameterSource createSqlParameterSource(EmployeeFullModel model) {
+    private void checkUniqueEmail(String email) {
+        SqlParameterSource sqlParameterSource = new MapSqlParameterSource("email", email);
+        Integer res = template.queryForObject(employeeCheckEmail, sqlParameterSource,  Integer.class);
+        if(res > 0) {
+            throw new RuntimeException("Employee with email "+email+" already exists");
+        }
+    }
+
+    private SqlParameterSource createSqlParameterSource(EmployeeFull model) {
         Map<String, Object> sqlParameter = new HashMap();
         sqlParameter.put("id", model.getId());
         sqlParameter.put("firstName", model.getFirstName());
@@ -89,36 +100,36 @@ public class EmployeeDto {
         sqlParameter.put("email", model.getEmail());
         sqlParameter.put("department", model.getDepartment());
         sqlParameter.put("position", model.getPosition());
-        sqlParameter.put("salary", model.getSalary());
+        sqlParameter.put("salary", new Double(model.getSalary()));
         sqlParameter.put("hiring", model.getHiring());
         sqlParameter.put("summary", model.getSummary());
         return new MapSqlParameterSource(sqlParameter);
     }
 
-    private class EmployeeBaseModelRowMapper implements RowMapper<EmployeeBaseModel> {
+    private class EmployeeBaseModelRowMapper implements RowMapper<EmployeeBase> {
         @Override
-        public EmployeeBaseModel mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-            return EmployeeBaseModel.builder()
+        public EmployeeBase mapRow(ResultSet resultSet, int rowNum) throws SQLException {
+            return EmployeeBase.builder()
                     .id(resultSet.getLong("id"))
                     .firstName(resultSet.getString("first_name"))
                     .lastName(resultSet.getString("last_name"))
-                    .salary(resultSet.getDouble("salary"))
+                    .salary(new DecimalFormat("#0.00").format(resultSet.getDouble("salary")))
                     .hiring(resultSet.getDate("hiring"))
                     .build();
         }
     }
 
-    private class EmployeeFullModelRowMapper implements RowMapper<EmployeeFullModel> {
+    private class EmployeeFullModelRowMapper implements RowMapper<EmployeeFull> {
         @Override
-        public EmployeeFullModel mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-            return EmployeeFullModel.builder()
+        public EmployeeFull mapRow(ResultSet resultSet, int rowNum) throws SQLException {
+            return EmployeeFull.builder()
                     .id(resultSet.getLong("id"))
                     .firstName(resultSet.getString("first_name"))
                     .lastName(resultSet.getString("last_name"))
                     .email(resultSet.getString("email"))
                     .department(resultSet.getInt("department"))
                     .position(resultSet.getString("position"))
-                    .salary(resultSet.getDouble("salary"))
+                    .salary(new DecimalFormat("#0.00").format(resultSet.getDouble("salary")))
                     .hiring(resultSet.getDate("hiring"))
                     .summary(resultSet.getString("summary"))
                     .build();

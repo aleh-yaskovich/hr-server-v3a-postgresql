@@ -1,4 +1,4 @@
-package com.yaskovich.hr.models;
+package com.yaskovich.hr.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DepartmentBaseModel {
+public class DepartmentBase {
     private Long id;
     private String title;
 }

@@ -1,7 +1,7 @@
 package com.yaskovich.hr.dto;
 
-import com.yaskovich.hr.models.DepartmentBaseModel;
-import com.yaskovich.hr.models.DepartmentFullModel;
+import com.yaskovich.hr.entity.DepartmentBase;
+import com.yaskovich.hr.entity.DepartmentFull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,25 +46,28 @@ public class DepartmentDto {
     private String departmentUpdate;
     @Value("${department.delete}")
     private String departmentDelete;
+    @Value("${department.checkTitle}")
+    private String departmentCheckTitle;
 
-    public List<DepartmentFullModel> getAllDepartments() {
+    public List<DepartmentFull> getAllDepartments() {
         return template.query(findAllDepartments, new DepartmentFullModelRowMapper());
     }
 
-    public Optional<DepartmentFullModel> getDepartmentById(Long id) {
+    public Optional<DepartmentFull> getDepartmentById(Long id) {
         SqlParameterSource sqlParameterSource = new MapSqlParameterSource("id", id);
-        List<DepartmentFullModel> results =
+        List<DepartmentFull> results =
                 template.query(findDepartmentById, sqlParameterSource, new DepartmentFullModelRowMapper());
         return Optional.ofNullable(DataAccessUtils.uniqueResult(results));
     }
 
-    public boolean createDepartment(DepartmentBaseModel model) {
+    public boolean createDepartment(DepartmentBase model) {
+        checkUniqueTitle(model.getTitle());
         KeyHolder keyHolder = new GeneratedKeyHolder();
         template.update(departmentCreate, createSqlParameterSource(model), keyHolder);
         return true;
     }
 
-    public boolean updateDepartment(DepartmentBaseModel model) {
+    public boolean updateDepartment(DepartmentBase model) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         template.update(departmentUpdate, createSqlParameterSource(model), keyHolder);
         return true;
@@ -74,22 +78,30 @@ public class DepartmentDto {
         return template.update(departmentDelete, sqlParameterSource);
     }
 
-    private SqlParameterSource createSqlParameterSource(DepartmentBaseModel model) {
+    private SqlParameterSource createSqlParameterSource(DepartmentBase model) {
         Map<String, Object> sqlParameter = new HashMap();
         sqlParameter.put("id", model.getId());
         sqlParameter.put("title", model.getTitle());
         return new MapSqlParameterSource(sqlParameter);
     }
 
-    private class DepartmentFullModelRowMapper implements RowMapper<DepartmentFullModel> {
+    private class DepartmentFullModelRowMapper implements RowMapper<DepartmentFull> {
         @Override
-        public DepartmentFullModel mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-            return DepartmentFullModel.builder()
+        public DepartmentFull mapRow(ResultSet resultSet, int rowNum) throws SQLException {
+            return DepartmentFull.builder()
                     .id(resultSet.getLong("id"))
                     .title(resultSet.getString("title"))
                     .numberOfEmployees(resultSet.getInt("number_of_employees"))
-                    .avgSalary(resultSet.getDouble("avg_salary"))
+                    .avgSalary(new DecimalFormat("#0.00").format(resultSet.getDouble("avg_salary")))
                     .build();
+        }
+    }
+
+    private void checkUniqueTitle(String title) {
+        SqlParameterSource sqlParameterSource = new MapSqlParameterSource("title", title);
+        Integer res = template.queryForObject(departmentCheckTitle, sqlParameterSource, Integer.class);
+        if(res > 0) {
+            throw new RuntimeException("Department with title "+title+" already exists");
         }
     }
 }

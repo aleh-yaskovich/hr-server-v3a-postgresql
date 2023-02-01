@@ -1,8 +1,8 @@
 package com.yaskovich.hr.service;
 
 import com.yaskovich.hr.dto.EmployeeDto;
-import com.yaskovich.hr.models.EmployeeBaseModel;
-import com.yaskovich.hr.models.EmployeeFullModel;
+import com.yaskovich.hr.entity.EmployeeBase;
+import com.yaskovich.hr.entity.EmployeeFull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,12 +15,12 @@ public class EmployeeService {
     @Autowired
     private EmployeeDto employeeDto;
 
-    public List<EmployeeBaseModel> getAllEmployees() {
+    public List<EmployeeBase> getAllEmployees() {
         return employeeDto.getAllEmployees();
     }
 
-    public EmployeeFullModel getEmployeeById(Long id) {
-        Optional<EmployeeFullModel> optional = employeeDto.getEmployeeById(id);
+    public EmployeeFull getEmployeeById(Long id) {
+        Optional<EmployeeFull> optional = employeeDto.getEmployeeById(id);
         if(optional.isPresent()) {
             return optional.get();
         } else {
@@ -28,11 +28,11 @@ public class EmployeeService {
         }
     }
 
-    public boolean createEmployee(EmployeeFullModel model) {
+    public boolean createEmployee(EmployeeFull model) {
         return employeeDto.createEmployee(model);
     }
 
-    public boolean updateEmployee(EmployeeFullModel model) {
+    public boolean updateEmployee(EmployeeFull model) {
         return employeeDto.updateEmployee(model);
     }
 

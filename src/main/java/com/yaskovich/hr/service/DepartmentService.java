@@ -2,10 +2,10 @@ package com.yaskovich.hr.service;
 
 import com.yaskovich.hr.dto.DepartmentDto;
 import com.yaskovich.hr.dto.EmployeeDto;
-import com.yaskovich.hr.models.DepartmentBaseModel;
-import com.yaskovich.hr.models.DepartmentFullModel;
-import com.yaskovich.hr.models.DepartmentModel;
-import com.yaskovich.hr.models.EmployeeBaseModel;
+import com.yaskovich.hr.entity.DepartmentBase;
+import com.yaskovich.hr.entity.DepartmentFull;
+import com.yaskovich.hr.entity.Department;
+import com.yaskovich.hr.entity.EmployeeBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,16 +20,16 @@ public class DepartmentService {
     @Autowired
     private EmployeeDto employeeDto;
 
-    public List<DepartmentFullModel> getAllDepartments() {
+    public List<DepartmentFull> getAllDepartments() {
         return departmentDto.getAllDepartments();
     }
 
-    public DepartmentModel getDepartmentById(Long id) {
-        Optional<DepartmentFullModel> optional = departmentDto.getDepartmentById(id);
+    public Department getDepartmentById(Long id) {
+        Optional<DepartmentFull> optional = departmentDto.getDepartmentById(id);
         if(optional.isPresent()) {
-            DepartmentFullModel departmentFullModel = optional.get();
-            List<EmployeeBaseModel> employees = employeeDto.getEmployeesByDepartment(id);
-            return DepartmentModel.builder()
+            DepartmentFull departmentFullModel = optional.get();
+            List<EmployeeBase> employees = employeeDto.getEmployeesByDepartment(id);
+            return Department.builder()
                     .id(departmentFullModel.getId())
                     .title(departmentFullModel.getTitle())
                     .numberOfEmployees(departmentFullModel.getNumberOfEmployees())
@@ -41,11 +41,11 @@ public class DepartmentService {
         }
     }
 
-    public boolean createDepartment(DepartmentBaseModel model) {
+    public boolean createDepartment(DepartmentBase model) {
         return departmentDto.createDepartment(model);
     }
 
-    public boolean updateDepartment(DepartmentBaseModel model) {
+    public boolean updateDepartment(DepartmentBase model) {
         return departmentDto.updateDepartment(model);
     }
 

@@ -1,8 +1,10 @@
 package com.yaskovich.hr.controller;
 
-import com.yaskovich.hr.models.DepartmentBaseModel;
-import com.yaskovich.hr.models.DepartmentFullModel;
-import com.yaskovich.hr.models.DepartmentModel;
+import com.yaskovich.hr.controller.model.BaseModel;
+import com.yaskovich.hr.controller.model.DepartmentRequestModel;
+import com.yaskovich.hr.entity.DepartmentBase;
+import com.yaskovich.hr.entity.DepartmentFull;
+import com.yaskovich.hr.entity.Department;
 import com.yaskovich.hr.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,27 +19,58 @@ public class DepartmentController {
     private DepartmentService departmentService;
 
     @GetMapping()
-    public List<DepartmentFullModel> getAllDepartments() {
+    public List<DepartmentFull> getAllDepartments() {
         return departmentService.getAllDepartments();
     }
 
     @GetMapping("/{id}")
-    public DepartmentModel getDepartmentById(@PathVariable Long id) {
-        return departmentService.getDepartmentById(id);
+    public DepartmentRequestModel getDepartmentById(@PathVariable Long id) {
+        try {
+            Department department = departmentService.getDepartmentById(id);
+            return DepartmentRequestModel.builder()
+                    .department(department)
+                    .status(BaseModel.Status.SUCCESS)
+                    .build();
+        } catch (Exception e) {
+            return DepartmentRequestModel.builder()
+                    .status(BaseModel.Status.FAILURE)
+                    .message(e.getMessage())
+                    .build();
+        }
     }
 
     @PostMapping()
-    public boolean createDepartment(@RequestBody DepartmentBaseModel model) {
-        return departmentService.createDepartment(model);
+    public BaseModel createDepartment(@RequestBody DepartmentBase model) {
+        try {
+            departmentService.createDepartment(model);
+            return BaseModel.builder().status(BaseModel.Status.SUCCESS).build();
+        } catch(Exception e) {
+            return BaseModel.builder()
+                    .status(BaseModel.Status.FAILURE)
+                    .message(e.getMessage())
+                    .build();
+        }
     }
 
     @PutMapping()
-    public boolean updateDepartment(@RequestBody DepartmentBaseModel model) {
-        return departmentService.updateDepartment(model);
+    public BaseModel updateDepartment(@RequestBody DepartmentBase model) {
+        try {
+            departmentService.updateDepartment(model);
+            return BaseModel.builder().status(BaseModel.Status.SUCCESS).build();
+        } catch(Exception e) {
+            return BaseModel.builder()
+                    .status(BaseModel.Status.FAILURE)
+                    .message(e.getMessage())
+                    .build();
+        }
     }
 
     @DeleteMapping("/{id}")
-    public Integer deleteDepartmentById(@PathVariable Long id) {
-        return departmentService.deleteDepartmentById(id);
+    public BaseModel deleteDepartmentById(@PathVariable Long id) {
+        if(departmentService.deleteDepartmentById(id) == 1) {
+            return BaseModel.builder().status(BaseModel.Status.SUCCESS).build();
+        } else {
+            return BaseModel.builder().status(BaseModel.Status.FAILURE).build();
+        }
     }
 }
