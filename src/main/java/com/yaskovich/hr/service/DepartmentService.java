@@ -28,7 +28,7 @@ public class DepartmentService {
         Optional<DepartmentFull> optional = departmentDto.getDepartmentById(id);
         if(optional.isPresent()) {
             DepartmentFull departmentFullModel = optional.get();
-            List<EmployeeBase> employees = employeeDto.getEmployeesByDepartment(id);
+            List<EmployeeBase> employees = employeeDto.getEmployeesByDepartment(departmentFullModel.getTitle());
             return Department.builder()
                     .id(departmentFullModel.getId())
                     .title(departmentFullModel.getTitle())

@@ -2,6 +2,7 @@ package com.yaskovich.hr.controller;
 
 import com.yaskovich.hr.controller.model.BaseModel;
 import com.yaskovich.hr.controller.model.EmployeeBaseRequestModel;
+import com.yaskovich.hr.controller.model.EmployeeFullRequestModel;
 import com.yaskovich.hr.entity.EmployeeBase;
 import com.yaskovich.hr.entity.EmployeeFull;
 import com.yaskovich.hr.service.EmployeeService;
@@ -23,15 +24,15 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    public EmployeeBaseRequestModel getEmployeeById(@PathVariable Long id) {
+    public EmployeeFullRequestModel getEmployeeById(@PathVariable Long id) {
         try {
-            EmployeeBase employeeBase = employeeService.getEmployeeById(id);
-            return EmployeeBaseRequestModel.builder()
-                    .employeeBase(employeeBase)
+            EmployeeFull employeeFull = employeeService.getEmployeeById(id);
+            return EmployeeFullRequestModel.builder()
+                    .employeeFull(employeeFull)
                     .status(BaseModel.Status.SUCCESS)
                     .build();
         } catch(Exception e) {
-            return EmployeeBaseRequestModel.builder()
+            return EmployeeFullRequestModel.builder()
                     .status(BaseModel.Status.FAILURE)
                     .message(e.getMessage())
                     .build();

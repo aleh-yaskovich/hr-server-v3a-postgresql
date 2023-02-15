@@ -11,7 +11,6 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class EmployeeFull extends EmployeeBase {
     private String email;
-    private int department;
     private String position;
     private String summary;
 }

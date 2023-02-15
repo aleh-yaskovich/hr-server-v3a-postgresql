@@ -15,6 +15,7 @@ public class EmployeeBase {
     private Long id;
     private String firstName;
     private String lastName;
+    private String department;
     private String salary;
     private Date hiring;
 }

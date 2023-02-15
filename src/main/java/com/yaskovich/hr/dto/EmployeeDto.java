@@ -48,17 +48,21 @@ public class EmployeeDto {
     private String employeeUpdate;
     @Value("${employee.delete}")
     private String employeeDelete;
-    @Value("${employee.checkEmail}")
-    private String employeeCheckEmail;
 
     public List<EmployeeBase> getAllEmployees() {
         return template.query(findAllEmployees, new EmployeeBaseModelRowMapper());
     }
 
-    public List<EmployeeBase> getEmployeesByDepartment(Long department) {
+    public List<EmployeeBase> getEmployeesByDepartment(String department) {
         SqlParameterSource sqlParameterSource = new MapSqlParameterSource("department", department);
         return template.query(findEmployeesByDepartment, sqlParameterSource, new EmployeeBaseModelRowMapper());
     }
+//    public Optional<EmployeeFull> getEmployeeById(Long id) {
+//        SqlParameterSource sqlParameterSource = new MapSqlParameterSource("id", id);
+//        List<EmployeeFull> results =
+//                template.query(findEmployeeById, sqlParameterSource, new EmployeeFullModelRowMapper());
+//        return Optional.ofNullable(DataAccessUtils.uniqueResult(results));
+//    }
 
     public Optional<EmployeeFull> getEmployeeById(Long id) {
         SqlParameterSource sqlParameterSource = new MapSqlParameterSource("id", id);
@@ -84,14 +88,6 @@ public class EmployeeDto {
         return template.update(employeeDelete, sqlParameterSource);
     }
 
-    private void checkUniqueEmail(String email) {
-        SqlParameterSource sqlParameterSource = new MapSqlParameterSource("email", email);
-        Integer res = template.queryForObject(employeeCheckEmail, sqlParameterSource,  Integer.class);
-        if(res > 0) {
-            throw new RuntimeException("Employee with email "+email+" already exists");
-        }
-    }
-
     private SqlParameterSource createSqlParameterSource(EmployeeFull model) {
         Map<String, Object> sqlParameter = new HashMap();
         sqlParameter.put("id", model.getId());
@@ -112,6 +108,7 @@ public class EmployeeDto {
             return EmployeeBase.builder()
                     .id(resultSet.getLong("id"))
                     .firstName(resultSet.getString("first_name"))
+                    .department(resultSet.getString("department"))
                     .lastName(resultSet.getString("last_name"))
                     .salary(new DecimalFormat("#0.00").format(resultSet.getDouble("salary")))
                     .hiring(resultSet.getDate("hiring"))
@@ -127,7 +124,7 @@ public class EmployeeDto {
                     .firstName(resultSet.getString("first_name"))
                     .lastName(resultSet.getString("last_name"))
                     .email(resultSet.getString("email"))
-                    .department(resultSet.getInt("department"))
+                    .department(resultSet.getString("department"))
                     .position(resultSet.getString("position"))
                     .salary(new DecimalFormat("#0.00").format(resultSet.getDouble("salary")))
                     .hiring(resultSet.getDate("hiring"))

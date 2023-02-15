@@ -46,8 +46,6 @@ public class DepartmentDto {
     private String departmentUpdate;
     @Value("${department.delete}")
     private String departmentDelete;
-    @Value("${department.checkTitle}")
-    private String departmentCheckTitle;
 
     public List<DepartmentFull> getAllDepartments() {
         return template.query(findAllDepartments, new DepartmentFullModelRowMapper());
@@ -61,7 +59,6 @@ public class DepartmentDto {
     }
 
     public boolean createDepartment(DepartmentBase model) {
-        checkUniqueTitle(model.getTitle());
         KeyHolder keyHolder = new GeneratedKeyHolder();
         template.update(departmentCreate, createSqlParameterSource(model), keyHolder);
         return true;
@@ -81,7 +78,7 @@ public class DepartmentDto {
     private SqlParameterSource createSqlParameterSource(DepartmentBase model) {
         Map<String, Object> sqlParameter = new HashMap();
         sqlParameter.put("id", model.getId());
-        sqlParameter.put("title", model.getTitle());
+        sqlParameter.put("title", model.getTitle().toUpperCase());
         return new MapSqlParameterSource(sqlParameter);
     }
 
@@ -94,14 +91,6 @@ public class DepartmentDto {
                     .numberOfEmployees(resultSet.getInt("number_of_employees"))
                     .avgSalary(new DecimalFormat("#0.00").format(resultSet.getDouble("avg_salary")))
                     .build();
-        }
-    }
-
-    private void checkUniqueTitle(String title) {
-        SqlParameterSource sqlParameterSource = new MapSqlParameterSource("title", title);
-        Integer res = template.queryForObject(departmentCheckTitle, sqlParameterSource, Integer.class);
-        if(res > 0) {
-            throw new RuntimeException("Department with title "+title+" already exists");
         }
     }
 }
