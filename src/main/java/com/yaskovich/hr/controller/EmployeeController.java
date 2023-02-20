@@ -1,7 +1,6 @@
 package com.yaskovich.hr.controller;
 
 import com.yaskovich.hr.controller.model.BaseModel;
-import com.yaskovich.hr.controller.model.EmployeeBaseRequestModel;
 import com.yaskovich.hr.controller.model.EmployeeFullRequestModel;
 import com.yaskovich.hr.entity.EmployeeBase;
 import com.yaskovich.hr.entity.EmployeeFull;
